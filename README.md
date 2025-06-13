@@ -67,47 +67,126 @@ After successful installation, you'll find:
 │   └── share/            # Documentation and examples
 └── libtorch/             # PyTorch C++ library (if present)
 ```
-
-## Usage
-
 After installation, the LAMMPS executable will be located at:
 ```
 /projappl/<project>/<username>/LAMMPS-KOKKOS/lammps-mace/bin/lmp
 ```
+---
+## Running LAMMPS with Kokkos and MACE
 
-### Running LAMMPS-KOKKOS-MACE
+## Step 1: Compile the MACE Model
 
-Create a batch script for Mahti SLURM system:
+Before running LAMMPS, you need to compile your trained MACE model:
 
 ```bash
-#!/bin/bash
-#SBATCH --account=plantto
-#SBATCH --partition=gputest
-#SBATCH --time=00:15:00
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --gres=gpu:a100:1
-#SBATCH --output=test_lammps-gpu_%j.out
-#SBATCH --error=test_lammps-gpu_%j.err
+# Activate the virtual Python environment where MACE is installed
+source /path/to/mace_env/bin/activate
 
-module purge
-module load gcc/11.2.0 openmpi/4.1.2 fftw/3.3.10-mpi cuda/11.5.0 cudnn/8.3.3.40-11.5 .unsupported intel-oneapi-mkl/2021.4.0
-
-# Set the installation directory of LAMMPS and libtorch (replace <project> and <username> with your CSC project and username below)
-LAMMPS_DIR=/projappl/<project>/<username>/LAMMPS-KOKKOS/lammps-mace
-LIBTORCH_DIR=/projappl/<project>/<username>/LAMMPS-KOKKOS/libtorch
-
-# Ensure the directory containing libtorch.so is included in the LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$LIBTORCH_DIR/lib:$FFTW_INSTALL_ROOT/lib:$CUDA_INSTALL_ROOT/lib64:$LD_LIBRARY_PATH
-
-export PATH=$LAMMPS_DIR/bin:$PATH
-
-export OMP_NUM_THREADS=1
-
-srun -n 1 lmp -sf kk -k on g 4 -pk kokkos -in xe_water_lammps.in
+# Run the MACE MLIP model compiler code
+python3 create_lammps_model.py MACE_model_lr_1e-4.model
 ```
 
-## Troubleshooting
+**What this does:**
+- Converts your trained MACE model into a format compatible with LAMMPS
+- Generates the model file `MACE_model_lr_1e-4.model-lammps.pt` that will be used for the LAMMPS simulation
+
+### Step 2: Prepare Required Files
+
+Ensure you have the following files in your working directory:
+
+| File | Description | Source |
+|------|-------------|---------|
+| `xe_water_lammps.in` | LAMMPS input script | This repository |
+| `lammps-gpu.sh` | SLURM job submission script | This repository |
+| `xe_water.data` | Initial atomic structure in LAMMPS format | This repository |
+| Compiled MACE model files | Generated from Step 1 | Created by compiler |
+
+### Step 3: Submit the Job
+
+Submit your simulation to the SLURM queue:
+
+```bash
+sbatch lammps-gpu.sh
+```
+
+## Output Files
+
+After successful job submission and execution, the following output files will be generated:
+
+### Primary Output Files
+
+- **`log.lammps`**
+  - Main LAMMPS log file containing simulation details
+  - Includes thermodynamic data, timing information, and progress updates
+  - Essential for monitoring simulation performance
+
+- **`outputdata.dump`**
+  - Trajectory file containing atomic positions and properties over time
+  - Can be visualized using tools like OVITO, VMD, or LAMMPS tools
+  - Contains the main scientific results of your simulation
+
+### Checkpoint Files
+
+- **`tmp.restart.<specified_steps>`**
+  - Binary restart files for continuing interrupted simulations
+  - Generated at specified timestep intervals
+  - Useful when job wall time is reached or simulation is interrupted
+  - Allows seamless continuation of long simulations
+
+### Job Logging Files
+
+- **`test_lammps-gpu_<JOB_ID>.out`**
+  - Standard output from the SLURM job
+  - Contains job execution information and LAMMPS stdout
+
+- **`test_lammps-gpu_<JOB_ID>.err`**
+  - Standard error messages from the SLURM job
+  - Check this file for debugging if simulation fails
+
+## File Usage Examples
+
+### Analyzing Results
+
+```bash
+# View thermodynamic output
+tail -f log.lammps
+
+# Check job status
+cat test_lammps-gpu_*.out
+
+# Look for errors
+cat test_lammps-gpu_*.err
+```
+
+### Continuing Simulations
+
+If your simulation was interrupted, you can restart from a checkpoint:
+
+```bash
+# Modify your input script to read from restart file
+# Add this line to your LAMMPS input:
+# read_restart tmp.restart.1000000
+# And remove the line:
+# read_data ./xe_water.data
+```
+
+### Visualizing Trajectories
+
+```bash
+# Using OVITO (if available)
+ovito outputdata.dump
+```
+
+### Advanced Analysis
+
+```bash
+# Example: Extract energy vs time
+grep "Step" log.lammps | awk '{print $1, $3}' > energy.dat
+```
+
+---
+
+## Troubleshooting Related to Building LAMMPS-KOKKOS-MACE
 
 ### Common Issues
 
