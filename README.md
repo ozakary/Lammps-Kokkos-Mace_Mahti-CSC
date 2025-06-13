@@ -1,5 +1,5 @@
-# LAMMPS with KOKKOS and MACE Installation for [Mahti CSC Supercomputer](https://www.mahti.csc.fi/public/)
-This repository provides installation instructions and scripts for building LAMMPS with Kokkos GPU acceleration and MACE model for ML interatomic potential support on the [Mahti CSC supercomputer](https://www.mahti.csc.fi/public/).
+# Recipe for Installation of LAMMPS with KOKKOS and MACE for [Mahti CSC Supercomputer](https://www.mahti.csc.fi/public/)
+This repository provides a recipe for the installation of LAMMPS with Kokkos GPU acceleration and MACE model for ML interatomic potential support on the [Mahti CSC supercomputer](https://www.mahti.csc.fi/public/).
 
 ---
 
