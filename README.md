@@ -74,7 +74,7 @@ After installation, the LAMMPS executable will be located at:
 ---
 ## Running LAMMPS with Kokkos and MACE
 
-## Step 1: Compile the MACE Model
+### Step 1: Compile the MACE Model
 
 Before running LAMMPS, you need to compile your trained MACE model:
 
@@ -99,7 +99,7 @@ Ensure you have the following files in your working directory:
 | `xe_water_lammps.in` | LAMMPS input script | This repository |
 | `lammps-gpu.sh` | SLURM job submission script | This repository |
 | `xe_water.data` | Initial atomic structure in LAMMPS format | This repository |
-| Compiled MACE model files | Generated from Step 1 | Created by compiler |
+| `MACE_model_lr_1e-4.model-lammps.pt` | Generated from Step 1 | Created by compiler |
 
 ### Step 3: Submit the Job
 
