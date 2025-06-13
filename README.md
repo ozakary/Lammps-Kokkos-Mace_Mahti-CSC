@@ -75,29 +75,36 @@ After installation, the LAMMPS executable will be located at:
 /projappl/<project>/<username>/LAMMPS-KOKKOS/lammps-mace/bin/lmp
 ```
 
-### Running LAMMPS-MACE
+### Running LAMMPS-KOKKOS-MACE
 
 Create a batch script for Mahti SLURM system:
 
 ```bash
 #!/bin/bash
-#SBATCH --job-name=lammps_mace
-#SBATCH --account=<your_project>
-#SBATCH --partition=gpu
-#SBATCH --time=01:00:00
+#SBATCH --account=plantto
+#SBATCH --partition=gputest
+#SBATCH --time=00:15:00
+#SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
-#SBATCH --gres=gpu:v100:1
+#SBATCH --gres=gpu:a100:1
+#SBATCH --output=test_lammps-gpu_%j.out
+#SBATCH --error=test_lammps-gpu_%j.err
 
-# Load required modules
 module purge
-module load gcc/10.4.0 openmpi/4.1.5-cuda fftw/3.3.10-mpi cuda/12.1.1
+module load gcc/11.2.0 openmpi/4.1.2 fftw/3.3.10-mpi cuda/11.5.0 cudnn/8.3.3.40-11.5 .unsupported intel-oneapi-mkl/2021.4.0
 
-# Set path to your LAMMPS installation
-export LAMMPS_PATH=/projappl/<project>/<username>/LAMMPS-KOKKOS/lammps-mace
+# Set the installation directory of LAMMPS and libtorch (replace <project> and <username> with your CSC project and username below)
+LAMMPS_DIR=/projappl/<project>/<username>/LAMMPS-KOKKOS/lammps-mace
+LIBTORCH_DIR=/projappl/<project>/<username>/LAMMPS-KOKKOS/libtorch
 
-# Run LAMMPS
-$LAMMPS_PATH/bin/lmp -k on g 1 -sf kk -pk kokkos newton on neigh half -in input.lmp
+# Ensure the directory containing libtorch.so is included in the LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LIBTORCH_DIR/lib:$FFTW_INSTALL_ROOT/lib:$CUDA_INSTALL_ROOT/lib64:$LD_LIBRARY_PATH
+
+export PATH=$LAMMPS_DIR/bin:$PATH
+
+export OMP_NUM_THREADS=1
+
+srun -n 1 lmp -sf kk -k on g 4 -pk kokkos -in input_lammps.in
 ```
 
 ## Troubleshooting
