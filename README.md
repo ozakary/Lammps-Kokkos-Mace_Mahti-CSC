@@ -21,7 +21,8 @@ This repository provides installation instructions and scripts for building LAMM
 
 ```bash
 # Clone this repository or download the script
-wget https://raw.githubusercontent.com/your-repo/install_lammps_kokkos_mace.sh
+git clone https://github.com/ozakary/Lammps-Kokkos-Mace_Mahti-CSC.git
+cd Lammps-Kokkos-Mace_Mahti-CSC
 chmod +x install_lammps_kokkos_mace.sh
 ```
 
