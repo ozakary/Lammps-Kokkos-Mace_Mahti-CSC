@@ -53,7 +53,8 @@ export CSC_PROJECT=myproject
 
 1. **Sets up environment variables** with your username
 2. **Downloads LAMMPS** from the ACEsuit repository (MACE branch)
-3. **Configures build environment** with required modules:
+3. **Downloads and installs libtorch** (PyTorch C++ library) required for MACE
+5. **Configures build environment** with required modules:
    - gcc/10.4.0
    - openmpi/4.1.5-cuda
    - fftw/3.3.10-mpi
@@ -61,8 +62,8 @@ export CSC_PROJECT=myproject
    - cudnn/8.3.3.40-11.5
    - intel-oneapi-mkl/2021.4.0
    - and other unsupported modules 
-4. **Builds LAMMPS** with Kokkos and MACE support
-5. **Installs** to your projappl directory
+6. **Builds LAMMPS** with Kokkos and MACE support
+7. **Installs** to your projappl directory
 
 ## Installation Directory Structure
 
