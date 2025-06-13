@@ -70,6 +70,49 @@ fi
 
 print_status "Using temporary directory: $TMPDIR"
 
+# Create installation directory first
+print_status "Creating base installation directory..."
+mkdir -p $PROJAPPL
+if [ $? -ne 0 ]; then
+    print_error "Failed to create base installation directory: $PROJAPPL"
+    print_error "Please check if you have write permissions to the projappl directory"
+    exit 1
+fi
+
+# Download and install libtorch
+print_status "Downloading and installing libtorch..."
+cd $PROJAPPL
+
+# Check if libtorch already exists
+if [ -d "libtorch" ]; then
+    print_warning "libtorch directory already exists. Skipping download..."
+else
+    print_status "Downloading libtorch (this may take a while)..."
+    wget https://download.pytorch.org/libtorch/cu115/libtorch-cxx11-abi-shared-with-deps-1.11.0%2Bcu115.zip
+    
+    if [ $? -ne 0 ]; then
+        print_error "Failed to download libtorch"
+        exit 1
+    fi
+    
+    print_status "Extracting libtorch..."
+    unzip libtorch-cxx11-abi-shared-with-deps-1.11.0+cu115.zip
+    
+    if [ $? -ne 0 ]; then
+        print_error "Failed to extract libtorch"
+        exit 1
+    fi
+    
+    # Clean up zip file
+    rm -f libtorch-cxx11-abi-shared-with-deps-1.11.0+cu115.zip
+    
+    print_success "libtorch installed successfully"
+fi
+
+# Navigate to temporary directory
+print_status "Changing to temporary directory..."
+cd $TMPDIR
+
 # Navigate to temporary directory
 print_status "Changing to temporary directory..."
 cd $TMPDIR
