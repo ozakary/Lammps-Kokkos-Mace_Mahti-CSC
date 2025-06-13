@@ -104,7 +104,7 @@ export PATH=$LAMMPS_DIR/bin:$PATH
 
 export OMP_NUM_THREADS=1
 
-srun -n 1 lmp -sf kk -k on g 4 -pk kokkos -in input_lammps.in
+srun -n 1 lmp -sf kk -k on g 4 -pk kokkos -in xe_water_lammps.in
 ```
 
 ## Troubleshooting
