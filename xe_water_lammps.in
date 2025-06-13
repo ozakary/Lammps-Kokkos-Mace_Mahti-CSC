@@ -1,0 +1,36 @@
+units metal
+atom_style atomic
+atom_modify map yes
+dimension 3
+
+# set newton on for pair_lj/cut
+newton on
+boundary p p p
+read_data ./xe_water.data
+
+# mace pair style
+pair_style mace no_domain_decomposition
+pair_coeff * * ./MACE_model_lr_1e-4.model-lammps.pt O H Xe
+
+mass 1 15.9994
+mass 2 1.00794
+mass 3 131.293
+
+velocity all create 300.0 1234567 loop geom
+
+neighbor 1.0 bin
+neigh_modify delay 5 every 1
+
+timestep 0.001
+thermo 100
+
+# Nose-Hoover thermostat, 300K
+fix 1 all nvt temp 300 300 $(100*dt)
+
+# Dump command
+dump myDump all custom 100 outputdata.dump id type x y z vx vy vz fx fy fz
+
+restart 1000 tmp.restart
+
+# Run 10ps (10000 timesteps)
+run 10000
